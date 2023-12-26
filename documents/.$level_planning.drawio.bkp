@@ -1,0 +1,46 @@
+<mxfile host="Electron" modified="2023-11-29T01:40:41.970Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.6.8 Chrome/114.0.5735.289 Electron/25.5.0 Safari/537.36" etag="ycnjJFgQ5bIcvqgvnZ7J" version="21.6.8" type="device">
+  <diagram name="Page-1" id="npotCMocfJoM2idSPYu-">
+    <mxGraphModel dx="1326" dy="1188" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="gwA_mBDqRbo09QkH5nJV-4" value="SOLID GROUND NOT SCALABLE" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="10" y="720" width="320" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="gwA_mBDqRbo09QkH5nJV-5" value="SOLID GROUND NOT SCALABLE" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="870" y="720" width="210" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="gwA_mBDqRbo09QkH5nJV-6" value="SCALABLE MOVING" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="410" y="550" width="170" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="gwA_mBDqRbo09QkH5nJV-7" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" edge="1" parent="1" source="gwA_mBDqRbo09QkH5nJV-6">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="495" y="540" as="sourcePoint" />
+            <mxPoint x="495" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="gwA_mBDqRbo09QkH5nJV-8" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="494.79" y="580" as="sourcePoint" />
+            <mxPoint x="494.79" y="630" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="gwA_mBDqRbo09QkH5nJV-9" value="SOLID GROUND NOT SCALABLE" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="10" y="390" width="430" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="gwA_mBDqRbo09QkH5nJV-10" value="SOLID GROUND NOT SCALABLE" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="550" y="390" width="530" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="gwA_mBDqRbo09QkH5nJV-11" value="PLAYER" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="200" y="670" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="gwA_mBDqRbo09QkH5nJV-12" value="KEY" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="950" y="230" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="gwA_mBDqRbo09QkH5nJV-16" value="SOLID GROUND NOT SCALABLE" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="870" y="300" width="210" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
