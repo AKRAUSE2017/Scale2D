@@ -1,15 +1,15 @@
 function utils_collision(obj1, obj2)
-    obj1_rightEdge = math.floor(obj1.x + obj1.w + 0.5)
-    obj1_leftEdge = math.floor(obj1.x + 0.5)
+    obj1_rightEdge = obj1.x + obj1.w
+    obj1_leftEdge = obj1.x
 
-    obj2_rightEdge = math.floor(obj2.x + obj2.w + 0.5)
-    obj2_leftEdge = math.floor(obj2.x + 0.5)
+    obj2_rightEdge = obj2.x + obj2.w
+    obj2_leftEdge = obj2.x
 
-    obj1_bottomEdge = math.floor(obj1.y + obj1.h + 0.5)
-    obj1_topEdge = math.floor(obj1.y + 0.5)
+    obj1_bottomEdge = obj1.y + obj1.h
+    obj1_topEdge = obj1.y
     
-    obj2_bottomEdge = math.floor(obj2.y + obj2.h + 0.5)
-    obj2_topEdge = math.floor(obj2.y + 0.5)
+    obj2_bottomEdge = obj2.y + obj2.h
+    obj2_topEdge = obj2.y
 
     collX = obj1_rightEdge >= obj2_leftEdge and obj2_rightEdge >= obj1_leftEdge
     collY = obj1_topEdge <= obj2_bottomEdge and obj2_topEdge <= obj1_bottomEdge

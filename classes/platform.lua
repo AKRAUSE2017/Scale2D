@@ -39,25 +39,25 @@ function Platform:render()
     end
 end
 
-function Platform:scaleUp(direction)
-    factor = 1
+function Platform:scaleUp(direction, dt)
+    factor = SCALE_FACTOR
     
     if direction == "w" then
-        new_w = self.w + factor
+        new_w = self.w + factor * dt
 
         if new_w < MAX_PLATFORM_WIDTH then
-            self.x = self.x - factor/2
-            self.w = self.w + factor
+            self.x = self.x - (factor/2 * dt)
+            self.w = self.w + (factor * dt)
 
             self.collision_box.x = self.x
             self.collision_box.w = self.w
         end
     elseif direction == "h" then
-        new_h = self.h + factor
+        new_h = self.h + factor * dt
 
         if new_h < MAX_PLATFORM_HEIGHT then
-            self.y = self.y - factor/2
-            self.h = self.h + factor
+            self.y = self.y - (factor/2 * dt)
+            self.h = self.h + (factor * dt)
 
             self.collision_box.y = self.y
             self.collision_box.h = self.h
@@ -65,25 +65,25 @@ function Platform:scaleUp(direction)
     end
 end
 
-function Platform:scaleDown(direction)
-    factor = 1
+function Platform:scaleDown(direction, dt)
+    factor = SCALE_FACTOR
 
     if direction == "w" then
-        new_w = self.w - factor
+        new_w = self.w - factor * dt
 
         if new_w > MIN_PLATFORM_WIDTH then
-            self.x = self.x + factor/2
-            self.w = self.w - factor
+            self.x = self.x + (factor/2 * dt)
+            self.w = self.w - (factor * dt)
 
             self.collision_box.x = self.x
             self.collision_box.w = self.w
         end
     elseif direction == "h" then
-        new_h = self.h - factor
+        new_h = self.h - factor * dt
 
         if new_h > MIN_PLATFORM_WIDTH then
-            self.y = self.y + factor/2
-            self.h = self.h - factor
+            self.y = self.y + (factor/2 * dt)
+            self.h = self.h - (factor * dt)
 
             self.collision_box.y = self.y
             self.collision_box.h = self.h
@@ -97,10 +97,12 @@ function Platform:check_top_collision(obj)
     -- i.e. the collision can only occur once the bottom edge has become equal to or a fraction of a pixel grater than 
     -- the top edge of the platform
 
-    -- self.collision_box.h = 400 * 1/(love.timer.getFPS()) 
-    -- print(love.timer.getFPS())
-
-    if obj.y + obj.h < self.collision_box.y + self.collision_box.h then return utils_collision(obj, self.collision_box) and obj.dy >= 0
+    if obj.collision_box.y + obj.collision_box.h < self.collision_box.y + self.collision_box.h then
+        if obj.inherit_dy == 0 then
+            return utils_collision(obj.collision_box, self.collision_box) and obj.dy>=0
+        else
+            return utils_collision(obj.collision_box, self.collision_box)
+        end
     else return false end
 end
 

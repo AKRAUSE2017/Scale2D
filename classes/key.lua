@@ -13,19 +13,14 @@ function Key:init(x, y, w, h)
 end
 
 function Key:render()
-    love.graphics.setColor(200/255, 100/255, 200/255)
+    love.graphics.setColor(100/255, 144/255, 200/255)
     love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
-end
-
-function Key:update(player, dt)
-    if self.collected then
-        self.x = player.x - 10
-        self.y = player.y - 10
-    end
 end
 
 function Key:collect(player)
     self.collected = true
+    self.x = VIRTUAL_WIDTH - 50
+    self.y = 10
 end
 
 function Key:check_collision(obj)

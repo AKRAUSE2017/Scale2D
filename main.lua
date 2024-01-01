@@ -13,11 +13,15 @@ require('classes.door')
 require('classes.key')
 
 function love.load()
+    print("START", VIRTUAL_HEIGHT-15)
     push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
         vsync = true,
         fullscreen = false,
         resizable = true
     })
+
+    SCALE_X = VIRTUAL_WIDTH/WINDOW_WIDTH
+    SCALE_Y = VIRTUAL_HEIGHT/WINDOW_HEIGHT
 
     love.keyboard.keysPressed = {} -- using love SDK to create new key to the keyboard table
 
@@ -56,6 +60,8 @@ function setLevel(level)
 end
 
 function love.resize(w,h)
+    SCALE_X = VIRTUAL_WIDTH/w
+    SCALE_Y = VIRTUAL_HEIGHT/h
     push:resize(w,h)
 end
 
@@ -84,30 +90,28 @@ function love.mousereleased(x, y, button)
         scale_mode = "h"
     end
 
-    for _, platform in pairs(platforms) do
+    for _, platform in pairs(platforms) do -- should probably update this to track the moving platforms only
         if platform.state == "freeze" then
             platform.state = "active"
+            platform.speed = platform.saved_speed
         end
     end
 end
 
-function mouseDown(button)
+function mouseDown(button, dt)
     x, y = love.mouse.getPosition()
     mouse_button = button
     mouse = {x=x*SCALE_X, y=y*SCALE_Y, w=1, h=1}
 
     for _, platform in pairs(platforms) do
         if platform.scalable and platform:check_collision(mouse) then
+            if platform.speed then
+                platform.state = "freeze"
+            end
             if mouse_button == 1 then
-                if platform.speed then
-                    platform.state = "freeze"
-                end
-                platform:scaleUp(scale_mode)
+                platform:scaleUp(scale_mode, dt)
             elseif mouse_button == 2 then
-                if platform.speed then
-                    platform.state = "freeze"
-                end
-                platform:scaleDown(scale_mode)
+                platform:scaleDown(scale_mode, dt)
             end
         end
     end
@@ -120,17 +124,17 @@ function love.keyboard.wasPressed(key)
 end
 
 function love.draw()
-    push:start()    
+    push:start() 
 
     for _, door in pairs(doors) do
         door:render()
     end
-    
-    player:render() 
 
     for _, platform in pairs(platforms) do
         platform:render()
     end
+
+    player:render()
 
     for _, key in pairs(keys) do
         key:render()
@@ -138,8 +142,6 @@ function love.draw()
 
     button_scale_w:render()
     button_scale_h:render()
-
-    
 
     if DEBUG_MODE then
         love.graphics.setColor(255/255, 255/255, 255/255)
@@ -153,34 +155,45 @@ function love.keyreleased(key)
     if key == "d" or key == "right" or key == "a" or key == "left" then
        player.should_snap = true
     end
- end
+    if key == "f" then
+        for _, platform in pairs(platforms) do
+            platform.state = "active"
+            platform.speed = platform.saved_speed
+        end
+    end
+end
 
 function love.update(dt)
     if love.mouse.isDown(1) then
-        mouseDown(1)
+        mouseDown(1, dt)
     elseif love.mouse.isDown(2) then
-        mouseDown(2)
+        mouseDown(2, dt)
+    end
+
+    if love.keyboard.isDown("f") then
+        for _, platform in pairs(platforms) do
+            platform.state = "freeze"
+        end
     end
 
     player.state = "air"
     for _, platform in pairs(platforms) do
         if platform:check_top_collision(player) then
-            player:grounded(platform)
-        end
-
+            player:grounded(platform, dt)
+        end  
         if platform.type == "moving" then
             platform:update(dt)
-        end
+        end      
     end
-
-    for _, key in pairs(keys) do
-        if key:check_collision(player) and (not key.collected) then
-            key:collect(player)
-        end
-        key:update(player, dt)
-    end
+    print(player.state)
 
     player:update(dt)
+
+    for _, key in pairs(keys) do
+        if key:check_collision(player.collision_box) and (not key.collected) then
+            key:collect(player)
+        end
+    end
 
     love.keyboard.keysPressed = {}
 end

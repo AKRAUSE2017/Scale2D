@@ -14,11 +14,16 @@ function MovingPlatform:init(x, y, w, h, scalable, speed, direction, low_bound, 
     self.up_bound = up_bound
 
     self.speed = speed
+    self.saved_speed = speed
     self.state = "active"
 end
 
 function MovingPlatform:update(dt)
+    if self.state == "freeze" then
+        self.speed = 0
+    end
     if self.state == "active" then
+        self.saved_speed = self.speed
         if self.direction == "x" then
             self.platform.x = self.platform.x + self.speed * dt
 
@@ -49,12 +54,12 @@ function MovingPlatform:render()
     self.platform:render()
 end
 
-function MovingPlatform:scaleUp(direction)
-    self.platform:scaleUp(direction)
+function MovingPlatform:scaleUp(direction, dt)
+    self.platform:scaleUp(direction, dt)
 end
 
-function MovingPlatform:scaleDown(direction)
-    self.platform:scaleDown(direction)
+function MovingPlatform:scaleDown(direction, dt)
+    self.platform:scaleDown(direction, dt)
 end
 
 function MovingPlatform:check_top_collision(obj)
