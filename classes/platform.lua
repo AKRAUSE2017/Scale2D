@@ -15,18 +15,12 @@ function Platform:init(x, y, w, h, scalable, platform_type)
     self.collision_box.y = y
     self.collision_box.w = w
     self.collision_box.h = h
-
-    if platform_type then
-        self.type = platform_type
-    else
-        self.type = "static"
-    end
 end
 
 function Platform:render()
     if self.scalable then
-        love.graphics.setColor(144/255, 238/255, 144/255)
-        love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
+        love.graphics.setColor(35/255, 33/255, 61/255)
+        love.graphics.rectangle("fill", math.floor(self.x), math.floor(self.y), self.w, self.h)
     else
         love.graphics.setColor(255/255, 255/255, 255/255)
         love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
@@ -40,24 +34,22 @@ function Platform:render()
 end
 
 function Platform:scaleUp(direction, dt)
-    factor = SCALE_FACTOR
-    
     if direction == "w" then
-        new_w = self.w + factor * dt
+        new_w = self.w + SCALE_FACTOR * dt
 
         if new_w < MAX_PLATFORM_WIDTH then
-            self.x = self.x - (factor/2 * dt)
-            self.w = self.w + (factor * dt)
+            self.x = self.x - (SCALE_FACTOR/2 * dt)
+            self.w = self.w + (SCALE_FACTOR * dt)
 
             self.collision_box.x = self.x
             self.collision_box.w = self.w
         end
     elseif direction == "h" then
-        new_h = self.h + factor * dt
+        new_h = self.h + SCALE_FACTOR * dt
 
         if new_h < MAX_PLATFORM_HEIGHT then
-            self.y = self.y - (factor/2 * dt)
-            self.h = self.h + (factor * dt)
+            self.y = self.y - (SCALE_FACTOR/2 * dt)
+            self.h = self.h + (SCALE_FACTOR * dt)
 
             self.collision_box.y = self.y
             self.collision_box.h = self.h
@@ -66,24 +58,22 @@ function Platform:scaleUp(direction, dt)
 end
 
 function Platform:scaleDown(direction, dt)
-    factor = SCALE_FACTOR
-
     if direction == "w" then
-        new_w = self.w - factor * dt
+        new_w = self.w - SCALE_FACTOR * dt
 
         if new_w > MIN_PLATFORM_WIDTH then
-            self.x = self.x + (factor/2 * dt)
-            self.w = self.w - (factor * dt)
+            self.x = self.x + (SCALE_FACTOR/2 * dt)
+            self.w = self.w - (SCALE_FACTOR * dt)
 
             self.collision_box.x = self.x
             self.collision_box.w = self.w
         end
     elseif direction == "h" then
-        new_h = self.h - factor * dt
+        new_h = self.h - SCALE_FACTOR * dt
 
         if new_h > MIN_PLATFORM_WIDTH then
-            self.y = self.y + (factor/2 * dt)
-            self.h = self.h - (factor * dt)
+            self.y = self.y + (SCALE_FACTOR/2 * dt)
+            self.h = self.h - (SCALE_FACTOR * dt)
 
             self.collision_box.y = self.y
             self.collision_box.h = self.h
@@ -96,12 +86,21 @@ function Platform:check_top_collision(obj)
     -- we don't do this relative to the top edge of the platform because we can't catch the collision 
     -- i.e. the collision can only occur once the bottom edge has become equal to or a fraction of a pixel grater than 
     -- the top edge of the platform
+    if (obj.collision_box) then 
+        obj_y = obj.collision_box.y
+        obj_h = obj.collision_box.h
+        obj_collision_box = obj.collision_box
+    else
+        obj_y = obj.y
+        obj_h = obj.h
+        obj_collision_box = obj
+    end
 
-    if obj.collision_box.y + obj.collision_box.h < self.collision_box.y + self.collision_box.h then
-        if obj.inherit_dy == 0 then
-            return utils_collision(obj.collision_box, self.collision_box) and obj.dy>=0
+    if obj_y + obj_h < self.collision_box.y + self.collision_box.h then
+        if obj.inherit_dy == 0 then -- if not snapped on a moving platform
+            return utils_collision(obj_collision_box, self.collision_box) and obj.dy>=0
         else
-            return utils_collision(obj.collision_box, self.collision_box)
+            return utils_collision(obj_collision_box, self.collision_box)
         end
     else return false end
 end

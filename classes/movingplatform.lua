@@ -5,47 +5,49 @@ MovingPlatform = Class{}
 require('helpers.constants')
 
 function MovingPlatform:init(x, y, w, h, scalable, speed, direction, low_bound, up_bound)
-    self.platform = Platform(x, y, w, h, scalable, "moving")
-    self.type = "moving"
+    self.platform = Platform(x, y, w, h, scalable)
     self.scalable = scalable
 
+    -- properties unique to moving platforms
     self.direction = direction
     self.low_bound = low_bound
     self.up_bound = up_bound
-
+    
     self.speed = speed
     self.saved_speed = speed
     self.state = "active"
 end
 
 function MovingPlatform:update(dt)
+    --print(self.state)
+    if love.keyboard.keysPressed["f"] and self.state == "active" then 
+        self.state = "freeze"
+        GAME_STATE = "freeze"
+    elseif love.keyboard.keysPressed["f"] and self.state == "freeze" then
+        self.state = "active"
+        self.speed = self.saved_speed
+        GAME_STATE = "play"
+    end
+
     if self.state == "freeze" then
         self.speed = 0
     end
+    
     if self.state == "active" then
         self.saved_speed = self.speed
+        local new_position = 0
         if self.direction == "x" then
-            self.platform.x = self.platform.x + self.speed * dt
-
-            if self.platform.x > self.up_bound and self.speed > 0 then
-                self.speed = -self.speed
-            elseif self.platform.x < self.low_bound and self.speed < 0 then
-                self.speed = -self.speed
-            end
-
-            self.platform.collision_box.x = self.platform.x
+            new_position = self.platform.x + self.speed * dt
+            self.platform.x = new_position
+            self.platform.collision_box.x = new_position
+        elseif self.direction == "y" then
+            new_position = self.platform.y + self.speed * dt
+            self.platform.y = new_position
+            self.platform.collision_box.y = new_position
         end
 
-        if self.direction == "y" then
-            self.platform.y = self.platform.y + self.speed * dt
-
-            if self.platform.y > self.up_bound and self.speed > 0 then
-                self.speed = -self.speed
-            elseif self.platform.y < self.low_bound and self.speed < 0 then
-                self.speed = -self.speed
-            end
-
-            self.platform.collision_box.y = self.platform.y
+        if (new_position > self.up_bound and self.speed > 0) or (new_position < self.low_bound and self.speed < 0) then
+            self.speed = -self.speed
         end
     end
 end
