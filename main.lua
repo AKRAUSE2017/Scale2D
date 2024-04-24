@@ -29,12 +29,26 @@ function love.load()
     love.keyboard.keysReleased = {}
     love.keyboard.keysDown = {}
 
-    background =  love.graphics.newImage("assets/background/test_bg.png")
+    background_sprite_sheet =  love.graphics.newImage("assets/background/test_bg.png")
+    background_sprite_sheet:setFilter("nearest", "nearest")
+    background_animated = newAnimation(background_sprite_sheet, 1280, 516, 0.5)
+
+    cat_sprite_sheet =  love.graphics.newImage("assets/background/cat_bg.png")
+    cat_sprite_sheet:setFilter("nearest", "nearest")
+    cat_animated = newAnimation(cat_sprite_sheet, 1280, 516, 0.5)
+    cat_animated_play = math.random(10)
+    cat_animated_timer = 0
     
     player = Player(0, 0, PLAYER_WIDTH, PLAYER_HEIGHT)
     player_sprite_sheet = love.graphics.newImage("assets/nina/nina_walk_right.png")
     player_sprite_sheet:setFilter("nearest", "nearest")
     animation = newAnimation(player_sprite_sheet, 32, 32, 0.3)
+
+    player_fall = love.graphics.newImage("assets/nina/nina_fall.png")
+    player_fall:setFilter("nearest", "nearest")
+
+    player_bend = love.graphics.newImage("assets/nina/nina_bend.png")
+    player_bend:setFilter("nearest", "nearest")
 
     player_profile = love.graphics.newImage("assets/nina/nina_profile.png")
     player_profile:setFilter("nearest", "nearest")
@@ -55,9 +69,9 @@ function setLevel(level)
 
     for _, properties in pairs(levels[level]["platforms"]) do
         if properties.moving then
-            table.insert(platforms_moving, MovingPlatform(properties.x, properties.y, properties.w, properties.h, properties.scalable, properties.speed, properties.direction, properties.low_bound, properties.up_bound))
+            table.insert(platforms_moving, MovingPlatform(properties.x, properties.y, properties.w, properties.h, properties.scalable, properties.speed, properties.direction, properties.low_bound, properties.up_bound, properties.col_type))
         else
-            table.insert(platforms, Platform(properties.x, properties.y, properties.w, properties.h, properties.scalable)) 
+            table.insert(platforms, Platform(properties.x, properties.y, properties.w, properties.h, properties.scalable, properties.col_type)) 
         end
     end
 
@@ -173,7 +187,13 @@ function love.draw()
     love.graphics.setColor(89/255, 89/255, 107/255)
     love.graphics.rectangle("fill", 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT)
     
-    love.graphics.draw(background, 0, 0)
+    love.graphics.setColor(255/255, 255/255, 255/255)
+    local spriteNum = math.floor(background_animated.currentTime / background_animated.duration * #background_animated.quads) + 1
+    love.graphics.draw(background_animated.spriteSheet, background_animated.quads[spriteNum], 0, -10)
+    
+    spriteNum = math.floor(cat_animated.currentTime / cat_animated.duration * #cat_animated.quads) + 1
+    love.graphics.draw(cat_animated.spriteSheet, cat_animated.quads[spriteNum], 0, -10)
+    
     
     -- item box
     love.graphics.setColor(255/255, 255/255, 255/255)
@@ -183,6 +203,8 @@ function love.draw()
         door:render()
     end
 
+    player:render()
+
     for _, platform in pairs(platforms) do
         platform:render()
     end
@@ -190,8 +212,6 @@ function love.draw()
     for _, platform in pairs(platforms_moving) do
         platform:render()
     end
-
-    player:render()
 
     for _, key in pairs(keys) do
         key:render()
@@ -239,21 +259,24 @@ function love.update(dt)
         scale_mode = "h"
     end
 
+    player:update(dt)
+
     player.state = "air"
     for _, platform in pairs(platforms) do -- static platforms
-        if platform:check_top_collision(player) then
+        if platform:player_check_top_collision(player) then
             player:grounded(platform, "static", dt)
-        end  
+        elseif platform.col_type == "solid" and platform:player_check_boundary_collision(player) then
+            player:stop_moving(platform)
+        end
     end
 
     for _, platform in pairs(platforms_moving) do -- moving platforms
-        if platform:check_top_collision(player) then
+        if platform:player_check_top_collision(player) then
             player:grounded(platform, "moving", dt)
-        end  
+        end
         platform:update(dt)     
     end
-
-    player:update(dt)
+    
     if player:outOfBounds() then
         platforms, platforms_moving, doors, keys = setLevel(level_number)
     end
@@ -285,4 +308,22 @@ function love.update(dt)
     love.keyboard.keysPressed = {}
     love.keyboard.keysReleased = {}
     love.keyboard.keysDown = {}
+
+    background_animated.currentTime = background_animated.currentTime + dt
+    if background_animated.currentTime >= background_animated.duration then
+        background_animated.currentTime = background_animated.currentTime - background_animated.duration
+    end
+
+    cat_animated_timer = cat_animated_timer + dt
+    if cat_animated_timer > cat_animated_play then
+        cat_animated.currentTime = cat_animated.currentTime + dt
+        if cat_animated.currentTime >= cat_animated.duration then
+            cat_animated.currentTime = cat_animated.currentTime - cat_animated.duration
+        end
+        if cat_animated_timer > cat_animated_play + cat_animated.duration then
+            cat_animated_timer = 0
+            cat_animated_play = math.random(10)
+            cat_animated.currentTime = 0
+        end
+    end
 end

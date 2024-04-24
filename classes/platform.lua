@@ -2,19 +2,22 @@ Platform = Class{}
 
 require('helpers.utils')
 
-function Platform:init(x, y, w, h, scalable, platform_type)
+function Platform:init(x, y, w, h, scalable, col_type)
     self.x = x
     self.y = y
     self.w = w
     self.h = h
 
     self.scalable = scalable
+    self.col_type = col_type
 
     self.collision_box = {}
     self.collision_box.x = x
     self.collision_box.y = y
     self.collision_box.w = w
     self.collision_box.h = h
+
+    self.top_collision_height = 10
 end
 
 function Platform:render()
@@ -27,9 +30,11 @@ function Platform:render()
     end
 
     if DEBUG_MODE then
+        love.graphics.setColor(255/255, 255/255, 255/255)
         love.graphics.print(string.format("%.2f",tostring(utils_round(self.x, 2)))..", "..string.format("%.2f",tostring(utils_round(self.y, 2))), self.x, self.y + self.h + 5)
         love.graphics.setColor(0/255, 0/255, 255/255)
         love.graphics.rectangle("line", self.collision_box.x, self.collision_box.y, self.collision_box.w, self.collision_box.h)
+        love.graphics.rectangle("line", self.collision_box.x, self.collision_box.y, self.collision_box.w, self.top_collision_height)
     end
 end
 
@@ -81,28 +86,35 @@ function Platform:scaleDown(direction, dt)
     end
 end
 
-function Platform:check_top_collision(obj)
+function Platform:player_check_top_collision(obj)
     -- we only check for collisions when the bottom edge of the object is above the bottom edge of the platform
     -- we don't do this relative to the top edge of the platform because we can't catch the collision 
     -- i.e. the collision can only occur once the bottom edge has become equal to or a fraction of a pixel grater than 
     -- the top edge of the platform
-    if (obj.collision_box) then 
-        obj_y = obj.collision_box.y
-        obj_h = obj.collision_box.h
-        obj_collision_box = obj.collision_box
-    else
-        obj_y = obj.y
-        obj_h = obj.h
-        obj_collision_box = obj
+    
+    local hasCollision = false
+
+    for _, obj_collision_box in pairs(obj.collision_boxes) do 
+        if obj.y + obj.h < self.collision_box.y + self.top_collision_height then
+            if obj.inherit_dy == 0 then -- if not snapped on a moving platform
+                hasCollision = utils_collision(obj_collision_box, self.collision_box) and obj.dy>=0
+            else
+                hasCollision = utils_collision(obj_collision_box, self.collision_box)
+            end
+        else hasCollision = false end
     end
 
-    if obj_y + obj_h < self.collision_box.y + self.collision_box.h then
-        if obj.inherit_dy == 0 then -- if not snapped on a moving platform
-            return utils_collision(obj_collision_box, self.collision_box) and obj.dy>=0
-        else
-            return utils_collision(obj_collision_box, self.collision_box)
+    return hasCollision
+end
+
+function Platform:player_check_boundary_collision(obj)
+    local hasCollision = false
+    for _, obj_collision_box in pairs(obj.collision_boxes) do 
+        if utils_collision(obj_collision_box, self.collision_box) then
+            hasCollision = true
         end
-    else return false end
+    end
+    return hasCollision
 end
 
 function Platform:check_collision(obj)

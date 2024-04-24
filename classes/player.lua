@@ -23,29 +23,50 @@ function Player:init(x, y, w, h)
     self.flip = PLAYER_SPRITE_SCALE
     self.x_offset_sprite = 0
 
-    self.collision_box = {}
-    self.collision_box.x = x + PLAYER_COLLISION_OFFSET_X
-    self.collision_box.y = y + PLAYER_COLLISION_OFFSET_Y
-    self.collision_box.w = w + PLAYER_COLLISION_OFFSET_W
-    self.collision_box.h = h + PLAYER_COLLISION_OFFSET_H
+    self.collision_boxes = {}
+
+    self.collision_boxes[1] = {}
+    self.collision_boxes[1]["x"] = x + PLAYER_COLLISION_OFFSETS[1]["X"]
+    self.collision_boxes[1]["y"] = y + PLAYER_COLLISION_OFFSETS[1]["Y"]
+    self.collision_boxes[1]["w"] = w + PLAYER_COLLISION_OFFSETS[1]["W"]
+    self.collision_boxes[1]["h"] = h + PLAYER_COLLISION_OFFSETS[1]["H"]
+
+    self.collision_boxes[2] = {}
+    self.collision_boxes[2]["x"] = x + PLAYER_COLLISION_OFFSETS[2]["X"]
+    self.collision_boxes[2]["y"] = y + PLAYER_COLLISION_OFFSETS[2]["Y"]
+    self.collision_boxes[2]["w"] = w + PLAYER_COLLISION_OFFSETS[2]["W"]
+    self.collision_boxes[2]["h"] = h + PLAYER_COLLISION_OFFSETS[2]["H"]
+
+    self.sprite_height = self.collision_boxes[1]["h"] + self.collision_boxes[2]["h"]
+
+    self.bend_to_jump_timer = 0
 end
 
 function Player:render()
     love.graphics.setColor(255/255, 255/255, 255/255)
-    local spriteNum = math.floor(animation.currentTime / animation.duration * #animation.quads) + 1
     
     local offset_x = 0
     if self.flip == -PLAYER_SPRITE_SCALE then offset_x = PLAYER_WIDTH end
     
-    love.graphics.draw(animation.spriteSheet, animation.quads[spriteNum], math.floor(self.x+offset_x), math.floor(self.y+PLAYER_SPRITE_SCALE), 0, self.flip, PLAYER_SPRITE_SCALE)
+    if self.bend_to_jump_timer > 0 then
+        love.graphics.draw(player_bend, math.floor(self.x+offset_x), math.floor(self.y+PLAYER_SPRITE_SCALE), 0, self.flip, PLAYER_SPRITE_SCALE)
+    elseif self.state == "fall" then
+        love.graphics.draw(player_fall, math.floor(self.x+offset_x), math.floor(self.y+PLAYER_SPRITE_SCALE), 0, self.flip, PLAYER_SPRITE_SCALE)
+    else
+        if self.dy > 0 and self.state == "air" then animation.currentTime = 0 end
+        local spriteNum = math.floor(animation.currentTime / animation.duration * #animation.quads) + 1
+        love.graphics.draw(animation.spriteSheet, animation.quads[spriteNum], math.floor(self.x+offset_x), math.floor(self.y+PLAYER_SPRITE_SCALE), 0, self.flip, PLAYER_SPRITE_SCALE)
+    end
 
     if DEBUG_MODE then
         love.graphics.print(string.format("%.2f",tostring(utils_round(self.x, 2)))..", "..string.format("%.2f",tostring(utils_round(self.y, 2))), self.x - 5, self.y - 25)
         love.graphics.setColor(255/255, 0/255, 255/255)
         love.graphics.rectangle("line", self.x, self.y, self.w, self.h)
 
-        love.graphics.setColor(255/255, 100/255, 255/255)
-        love.graphics.rectangle("line", self.collision_box.x, self.collision_box.y, self.collision_box.w, self.collision_box.h)
+        for _, collision_box in pairs(self.collision_boxes) do 
+            love.graphics.setColor(0/255, 255/255, 0/255)
+            love.graphics.rectangle("line", collision_box.x, collision_box.y, collision_box.w, collision_box.h)
+        end
     end
 
     for index, item in pairs(self.items) do
@@ -55,41 +76,53 @@ function Player:render()
 end
 
 function Player:update(dt)
-    if love.keyboard.keysPressed["space"] and self.state == "grounded" and GAME_STATE == "play" then
-        self.dy = -PLAYER_JUMP_HEIGHT + self.inherit_dy
-        self.state = "air"
-        self.air_time = 0
+    print(self.state)
+    if (love.keyboard.keysPressed["space"] or (self.bend_to_jump_timer > 0)) and self.state == "grounded" and GAME_STATE == "play" then
+        self.bend_to_jump_timer = self.bend_to_jump_timer + dt
+        if self.bend_to_jump_timer > 0.1 then
+            self.dy = -PLAYER_JUMP_HEIGHT + self.inherit_dy
+            self.state = "air"
+            self.air_time = 0
+        end
     end
 
     if love.keyboard.keysReleased["d"] or love.keyboard.keysReleased["right"] or love.keyboard.keysReleased["a"] or love.keyboard.keysReleased["left"] then
-        player.should_snap = true
+        self.should_snap = true
     end
 
     if love.keyboard.isDown('d') or love.keyboard.isDown("right") and GAME_STATE == "play" then
         self.dx = PLAYER_SPEED
-        animation.currentTime = animation.currentTime + dt
-        if animation.currentTime >= animation.duration then
-            animation.currentTime = animation.currentTime - animation.duration
-        end
+        if self.state == "grounded" then
+            animation.currentTime = animation.currentTime + dt
+            if animation.currentTime >= animation.duration then
+                animation.currentTime = animation.currentTime - animation.duration
+            end
+        else animation.currentTime = 0.1 end
         self.flip = PLAYER_SPRITE_SCALE
     elseif love.keyboard.isDown('a') or love.keyboard.isDown("left") and GAME_STATE == "play" then
         self.dx = -PLAYER_SPEED
-        animation.currentTime = animation.currentTime + dt
-        if animation.currentTime >= animation.duration then
-            animation.currentTime = animation.currentTime - animation.duration
-        end
+        if self.state == "grounded" then
+            animation.currentTime = animation.currentTime + dt
+            if animation.currentTime >= animation.duration then
+                animation.currentTime = animation.currentTime - animation.duration
+            end
+        else animation.currentTime = 0.1 end
         self.flip = -PLAYER_SPRITE_SCALE
     else
         self.dx = 0
         animation.currentTime = 0
     end
 
-    if self.state == "air" then
+    if self.state == "air" or self.state == "fall" then
+        self.bend_to_jump_timer = 0
+
         self.dy = math.min(self.dy + GRAVITY, 400)
         self.y = self.y + self.dy * dt
         
         self.inherit_dx = 0
         self.should_snap = true
+
+        if self.dy > 300 then self.state = "fall" end
     else
         self.dy = self.inherit_dy
         self.y = self.y + self.dy * dt
@@ -101,18 +134,20 @@ function Player:update(dt)
 
     self.dx = self.dx + self.inherit_dx
     self.x = self.x + self.dx * dt
+
     if self.x > VIRTUAL_WIDTH - self.w then self.x = VIRTUAL_WIDTH - self.w end
     if self.x < 0 then self.x = 0 end
 
-
-    self.collision_box.x = self.x + PLAYER_COLLISION_OFFSET_X
-    self.collision_box.y = self.y + PLAYER_COLLISION_OFFSET_Y
-    self.collision_box.w = self.w + PLAYER_COLLISION_OFFSET_W
-    self.collision_box.h = self.h + PLAYER_COLLISION_OFFSET_H
+    for key, collision_box in pairs(self.collision_boxes) do 
+        self.collision_boxes[key]["x"] = self.x + PLAYER_COLLISION_OFFSETS[key]["X"]
+        self.collision_boxes[key]["y"] = self.y + PLAYER_COLLISION_OFFSETS[key]["Y"]
+        self.collision_boxes[key]["w"] = self.w + PLAYER_COLLISION_OFFSETS[key]["W"]
+        self.collision_boxes[key]["h"] = self.h + PLAYER_COLLISION_OFFSETS[key]["H"]
+    end
 end 
 
 function Player:outOfBounds()
-    return player.y > VIRTUAL_HEIGHT + 150
+    return self.y > VIRTUAL_HEIGHT + 150
 end
 
 function Player:grounded(platform, platform_type, dt)
@@ -121,12 +156,37 @@ function Player:grounded(platform, platform_type, dt)
     if platform_type == "moving" then
         if platform.direction == "x" then self.inherit_dx = platform.speed end
         if platform.direction == "y" then self.inherit_dy = platform.speed end
-        self.y = platform.platform.y-PLAYER_HEIGHT
+        self.y = platform.platform.y-PLAYER_HEIGHT+1
     else
         self.y = platform.y-PLAYER_HEIGHT
         self.inherit_dx = 0
         self.inherit_dy = 0
     end
+end
+
+function Player:stop_moving(platform)
+    if platform_type == "moving" then 
+        platform = platform.platform
+    end
+
+    -- print(self.collision_box.x, platform.x + platform.w)
+    if self.collision_boxes[1].y <= platform.y + platform.h and self.collision_boxes[1].y > platform.y + platform.h - 2 then
+        self.y = platform.y + platform.h - PLAYER_COLLISION_OFFSETS[1]["Y"] + 2
+        if self.dy < 0 then
+            self.dy = 10
+        end
+    elseif self.collision_boxes[1].x + self.collision_boxes[1].w >= platform.x and self.collision_boxes[1].x + self.collision_boxes[1].w < platform.x + platform.w then -- player is left of the platform
+        if (self.collision_boxes[1].y + self.collision_boxes[1].h >= platform.y) or (self.dy > 0) then -- give a buffer for when trying to jump at the top of the platform
+            self.x = platform.x - self.collision_boxes[1].w - PLAYER_COLLISION_OFFSETS[1]["X"] -2 -- always offset by larger collision box
+            self.dx = 0
+        end
+    elseif self.collision_boxes[1].x <= platform.x + platform.w and self.collision_boxes[1].x > platform.x then -- player is right of the platform
+        if (self.collision_boxes[1].y + self.collision_boxes[1].h >= platform.y) or (self.dy > 0) then -- give a buffer for when trying to jump at the top of the platform
+            self.x = platform.x + platform.w - PLAYER_COLLISION_OFFSETS[1]["X"] + 2 
+            self.dx = 0
+        end
+    end
+
 end
 
 function Player:collect(item)

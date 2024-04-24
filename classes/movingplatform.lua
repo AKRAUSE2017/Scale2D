@@ -4,7 +4,7 @@ MovingPlatform = Class{}
 
 require('helpers.constants')
 
-function MovingPlatform:init(x, y, w, h, scalable, speed, direction, low_bound, up_bound)
+function MovingPlatform:init(x, y, w, h, scalable, speed, direction, low_bound, up_bound, col_type)
     self.platform = Platform(x, y, w, h, scalable)
     self.scalable = scalable
 
@@ -16,6 +16,8 @@ function MovingPlatform:init(x, y, w, h, scalable, speed, direction, low_bound, 
     self.speed = speed
     self.saved_speed = speed
     self.state = "active"
+
+    self.col_type = col_type
 end
 
 function MovingPlatform:update(dt)
@@ -64,8 +66,12 @@ function MovingPlatform:scaleDown(direction, dt)
     self.platform:scaleDown(direction, dt)
 end
 
-function MovingPlatform:check_top_collision(obj)
-    return self.platform:check_top_collision(obj)
+function MovingPlatform:player_check_top_collision(obj)
+    return self.platform:player_check_top_collision(obj)
+end
+
+function MovingPlatform:player_check_boundary_collision(obj)
+    return self.platform:player_check_boundary_collision(obj)
 end
 
 function MovingPlatform:check_collision(obj)
