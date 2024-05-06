@@ -76,7 +76,7 @@ function Player:render()
 end
 
 function Player:update(dt)
-    print(self.state)
+    -- print(self.state)
     if (love.keyboard.keysPressed["space"] or (self.bend_to_jump_timer > 0)) and self.state == "grounded" and GAME_STATE == "play" then
         self.bend_to_jump_timer = self.bend_to_jump_timer + dt
         if self.bend_to_jump_timer > 0.1 then
@@ -168,6 +168,8 @@ function Player:stop_moving(platform)
     if platform_type == "moving" then 
         platform = platform.platform
     end
+    local playerCollideLeft = self.collision_boxes[1].x + self.collision_boxes[1].w >= platform.x and self.collision_boxes[1].x + self.collision_boxes[1].w < platform.x + platform.w 
+    local playerCollideRight = self.collision_boxes[1].x <= platform.x + platform.w and self.collision_boxes[1].x > platform.x
 
     -- print(self.collision_box.x, platform.x + platform.w)
     if self.collision_boxes[1].y <= platform.y + platform.h and self.collision_boxes[1].y > platform.y + platform.h - 2 then
@@ -175,14 +177,14 @@ function Player:stop_moving(platform)
         if self.dy < 0 then
             self.dy = 10
         end
-    elseif self.collision_boxes[1].x + self.collision_boxes[1].w >= platform.x and self.collision_boxes[1].x + self.collision_boxes[1].w < platform.x + platform.w then -- player is left of the platform
+    elseif playerCollideLeft then -- player is left of the platform
         if (self.collision_boxes[1].y + self.collision_boxes[1].h >= platform.y) or (self.dy > 0) then -- give a buffer for when trying to jump at the top of the platform
-            self.x = platform.x - self.collision_boxes[1].w - PLAYER_COLLISION_OFFSETS[1]["X"] -2 -- always offset by larger collision box
+            self.x = platform.x - self.collision_boxes[1].w - PLAYER_COLLISION_OFFSETS[1]["X"]  -- always offset by larger collision box
             self.dx = 0
         end
-    elseif self.collision_boxes[1].x <= platform.x + platform.w and self.collision_boxes[1].x > platform.x then -- player is right of the platform
+    elseif playerCollideRight then -- player is right of the platform
         if (self.collision_boxes[1].y + self.collision_boxes[1].h >= platform.y) or (self.dy > 0) then -- give a buffer for when trying to jump at the top of the platform
-            self.x = platform.x + platform.w - PLAYER_COLLISION_OFFSETS[1]["X"] + 2 
+            self.x = (platform.x + platform.w) - PLAYER_COLLISION_OFFSETS[1]["X"]
             self.dx = 0
         end
     end

@@ -86,7 +86,7 @@ function Platform:scaleDown(direction, dt)
     end
 end
 
-function Platform:player_check_top_collision(obj)
+function Platform:check_top_collision(obj)
     -- we only check for collisions when the bottom edge of the object is above the bottom edge of the platform
     -- we don't do this relative to the top edge of the platform because we can't catch the collision 
     -- i.e. the collision can only occur once the bottom edge has become equal to or a fraction of a pixel grater than 
@@ -107,7 +107,7 @@ function Platform:player_check_top_collision(obj)
     return hasCollision
 end
 
-function Platform:player_check_boundary_collision(obj)
+function Platform:check_boundary_collision(obj)
     local hasCollision = false
     for _, obj_collision_box in pairs(obj.collision_boxes) do 
         if utils_collision(obj_collision_box, self.collision_box) then

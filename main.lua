@@ -263,15 +263,15 @@ function love.update(dt)
 
     player.state = "air"
     for _, platform in pairs(platforms) do -- static platforms
-        if platform:player_check_top_collision(player) then
+        if platform:check_top_collision(player) then
             player:grounded(platform, "static", dt)
-        elseif platform.col_type == "solid" and platform:player_check_boundary_collision(player) then
+        elseif platform.col_type == "solid" and platform:check_boundary_collision(player) then
             player:stop_moving(platform)
         end
     end
 
     for _, platform in pairs(platforms_moving) do -- moving platforms
-        if platform:player_check_top_collision(player) then
+        if platform:check_top_collision(player) then
             player:grounded(platform, "moving", dt)
         end
         platform:update(dt)     

@@ -66,12 +66,12 @@ function MovingPlatform:scaleDown(direction, dt)
     self.platform:scaleDown(direction, dt)
 end
 
-function MovingPlatform:player_check_top_collision(obj)
-    return self.platform:player_check_top_collision(obj)
+function MovingPlatform:check_top_collision(obj)
+    return self.platform:check_top_collision(obj)
 end
 
-function MovingPlatform:player_check_boundary_collision(obj)
-    return self.platform:player_check_boundary_collision(obj)
+function MovingPlatform:check_boundary_collision(obj)
+    return self.platform:check_boundary_collision(obj)
 end
 
 function MovingPlatform:check_collision(obj)
