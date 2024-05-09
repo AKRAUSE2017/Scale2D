@@ -61,11 +61,11 @@ function Player:render()
     if DEBUG_MODE then
         love.graphics.print(string.format("%.2f",tostring(utils_round(self.x, 2)))..", "..string.format("%.2f",tostring(utils_round(self.y, 2))), self.x - 5, self.y - 25)
         love.graphics.setColor(255/255, 0/255, 255/255)
-        love.graphics.rectangle("line", self.x, self.y, self.w, self.h)
+        love.graphics.rectangle("line", math.floor(self.x), math.floor(self.y), self.w, self.h)
 
         for _, collision_box in pairs(self.collision_boxes) do 
             love.graphics.setColor(0/255, 255/255, 0/255)
-            love.graphics.rectangle("line", collision_box.x, collision_box.y, collision_box.w, collision_box.h)
+            love.graphics.rectangle("line", math.floor(collision_box.x), math.floor(collision_box.y), collision_box.w, collision_box.h)
         end
     end
 

@@ -2,12 +2,12 @@ levels = {}
 
 levels[1] = {}
 levels[1]["platforms"] = {
-    {x = 0, y = 150, w = 150, h = 20, scalable = false, col_type = "one_way"},
-    {x = VIRTUAL_WIDTH/2 - 75, y = VIRTUAL_HEIGHT-350,  w = 150, h = 20, scalable = true, col_type = "one_way"},
-    {x = VIRTUAL_WIDTH/2 + 100, y = VIRTUAL_HEIGHT-300,  w = 150, h = 20, scalable = false, col_type = "solid"},
+    -- {x = 0, y = 150, w = 150, h = 20, scalable = false, col_type = "one_way"},
+    -- {x = VIRTUAL_WIDTH/2 - 75, y = VIRTUAL_HEIGHT-350,  w = 150, h = 20, scalable = true, col_type = "one_way"},
+    -- {x = VIRTUAL_WIDTH/2 + 100, y = VIRTUAL_HEIGHT-300,  w = 150, h = 20, scalable = false, col_type = "solid"},
     {x = 0, y = VIRTUAL_HEIGHT-15-200, w = VIRTUAL_WIDTH, h = 20, scalable = false, moving = false, col_type = "one_way"},
-    {x = 200, y = VIRTUAL_HEIGHT-400, w = 100, h = 50, scalable = false, moving = false, col_type = "solid"},
-    {x = 100, y = 450, w = 20, h = 600, scalable = false, moving = false, col_type = "solid"},
+    -- {x = 200, y = VIRTUAL_HEIGHT-400, w = 100, h = 50, scalable = false, moving = false, col_type = "solid"},
+    -- {x = 100, y = 450, w = 20, h = 600, scalable = false, moving = false, col_type = "solid"},
     --{x = 400, y = VIRTUAL_HEIGHT-345, w = 20, h = 150, scalable = false, moving = false, col_type = "solid"},
 }
 
