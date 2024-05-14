@@ -33,8 +33,8 @@ function Platform:render()
         love.graphics.setColor(255/255, 255/255, 255/255)
         love.graphics.print(string.format("%.2f",tostring(utils_round(self.x, 2)))..", "..string.format("%.2f",tostring(utils_round(self.y, 2))), self.x, self.y + self.h + 5)
         love.graphics.setColor(0/255, 0/255, 255/255)
-        love.graphics.rectangle("line", self.collision_box.x, self.collision_box.y, self.collision_box.w, self.collision_box.h)
-        love.graphics.rectangle("line", self.collision_box.x, self.collision_box.y, self.collision_box.w, self.top_collision_height)
+        love.graphics.rectangle("line", math.floor(self.collision_box.x), math.floor(self.collision_box.y), self.collision_box.w, self.collision_box.h)
+        love.graphics.rectangle("line", math.floor(self.collision_box.x), math.floor(self.collision_box.y), self.collision_box.w, self.top_collision_height)
     end
 end
 

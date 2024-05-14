@@ -116,7 +116,7 @@ function Player:update(dt)
     if self.state == "air" or self.state == "fall" then
         self.bend_to_jump_timer = 0
 
-        self.dy = math.min(self.dy + GRAVITY, 400)
+        self.dy = self.dy + GRAVITY * 1000--math.min(self.dy + GRAVITY, 400)
         self.y = self.y + self.dy * dt
         
         self.inherit_dx = 0
