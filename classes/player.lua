@@ -12,8 +12,6 @@ function Player:init(x, y, w, h)
     self.dx = 0
     self.dy = 0
 
-    self.should_snap = true
-
     self.state = "air"
     self.inherit_dx = 0
     self.inherit_dy = 0
@@ -50,8 +48,6 @@ function Player:render()
     
     if self.bend_to_jump_timer > 0 then
         love.graphics.draw(player_bend, math.floor(self.x+offset_x), math.floor(self.y+PLAYER_SPRITE_SCALE), 0, self.flip, PLAYER_SPRITE_SCALE)
-    elseif self.state == "fall" then
-        love.graphics.draw(player_fall, math.floor(self.x+offset_x), math.floor(self.y+PLAYER_SPRITE_SCALE), 0, self.flip, PLAYER_SPRITE_SCALE)
     else
         if self.dy > 0 and self.state == "air" then animation.currentTime = 0 end
         local spriteNum = math.floor(animation.currentTime / animation.duration * #animation.quads) + 1
@@ -76,65 +72,51 @@ function Player:render()
 end
 
 function Player:update(dt)
-    -- print(self.state)
     if (love.keyboard.keysPressed["space"] or (self.bend_to_jump_timer > 0)) and self.state == "grounded" and GAME_STATE == "play" then
         self.bend_to_jump_timer = self.bend_to_jump_timer + dt
         if self.bend_to_jump_timer > 0.1 then
             self.dy = -PLAYER_JUMP_HEIGHT + self.inherit_dy
             self.state = "air"
-            self.air_time = 0
         end
     end
 
-    if love.keyboard.keysReleased["d"] or love.keyboard.keysReleased["right"] or love.keyboard.keysReleased["a"] or love.keyboard.keysReleased["left"] then
-        self.should_snap = true
-    end
-
-    if love.keyboard.isDown('d') or love.keyboard.isDown("right") and GAME_STATE == "play" then
+    if love.keyboard.isDown('d') or love.keyboard.isDown("right") then
         self.dx = PLAYER_SPEED
-        if self.state == "grounded" then
-            animation.currentTime = animation.currentTime + dt
-            if animation.currentTime >= animation.duration then
-                animation.currentTime = animation.currentTime - animation.duration
-            end
-        else animation.currentTime = 0.1 end
         self.flip = PLAYER_SPRITE_SCALE
-    elseif love.keyboard.isDown('a') or love.keyboard.isDown("left") and GAME_STATE == "play" then
+    elseif love.keyboard.isDown('a') or love.keyboard.isDown("left") then
         self.dx = -PLAYER_SPEED
-        if self.state == "grounded" then
-            animation.currentTime = animation.currentTime + dt
-            if animation.currentTime >= animation.duration then
-                animation.currentTime = animation.currentTime - animation.duration
-            end
-        else animation.currentTime = 0.1 end
         self.flip = -PLAYER_SPRITE_SCALE
     else
         self.dx = 0
         animation.currentTime = 0
     end
 
-    if self.state == "air" or self.state == "fall" then
+    -- Animation update
+    if self.state == "grounded" and self.dx then
+        animation.currentTime = animation.currentTime + dt * math.abs(self.dx / PLAYER_SPEED)
+        if animation.currentTime >= animation.duration then
+            animation.currentTime = animation.currentTime - animation.duration
+        end
+    else
+        animation.currentTime = 0.1  -- Adjust as needed for air animation
+    end
+
+    if self.state == "air" then
         self.bend_to_jump_timer = 0
 
-        self.dy = self.dy + GRAVITY * 1000--math.min(self.dy + GRAVITY, 400)
-        self.y = self.y + self.dy * dt
+        self.dy = self.dy + GRAVITY
+        self.y = self.y + (self.dy * dt)
         
         self.inherit_dx = 0
-        self.should_snap = true
-
-        if self.dy > 300 then self.state = "fall" end
     else
         self.dy = self.inherit_dy
-        self.y = self.y + self.dy * dt
+        self.y = self.y + (self.dy * dt)
     end
+    if self.dx == 0 then
+        self.x = self.x + (self.inherit_dx * dt)
+    else self.x = self.x + (self.dx * dt) end
 
-    if self.dx * self.inherit_dx < 0 then -- self.dx * self.inherit_dx is > 0 when both are moving in same direction
-        self.inherit_dx = 0 -- when moving in opposite directions, disable the inherited velocity
-    end
-
-    self.dx = self.dx + self.inherit_dx
-    self.x = self.x + self.dx * dt
-
+    -- check screen boundaries
     if self.x > VIRTUAL_WIDTH - self.w then self.x = VIRTUAL_WIDTH - self.w end
     if self.x < 0 then self.x = 0 end
 
@@ -168,10 +150,10 @@ function Player:stop_moving(platform)
     if platform_type == "moving" then 
         platform = platform.platform
     end
+    -- self.collision_boxes[1] is nina's head
     local playerCollideLeft = self.collision_boxes[1].x + self.collision_boxes[1].w >= platform.x and self.collision_boxes[1].x + self.collision_boxes[1].w < platform.x + platform.w 
     local playerCollideRight = self.collision_boxes[1].x <= platform.x + platform.w and self.collision_boxes[1].x > platform.x
 
-    -- print(self.collision_box.x, platform.x + platform.w)
     if self.collision_boxes[1].y <= platform.y + platform.h and self.collision_boxes[1].y > platform.y + platform.h - 2 then
         self.y = platform.y + platform.h - PLAYER_COLLISION_OFFSETS[1]["Y"] + 2
         if self.dy < 0 then

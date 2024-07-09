@@ -53,6 +53,7 @@ function love.load()
     player_profile = love.graphics.newImage("assets/nina/nina_profile.png")
     player_profile:setFilter("nearest", "nearest")
 
+    dialog_index = 1
     level_number = 1
     platforms, platforms_moving, doors, keys = setLevel(level_number)
 
@@ -67,11 +68,13 @@ function setLevel(level)
     local doors = {}
     local keys = {}
 
+    dialog_index = 1
+
     for _, properties in pairs(levels[level]["platforms"]) do
         if properties.moving then
-            table.insert(platforms_moving, MovingPlatform(properties.x, properties.y, properties.w, properties.h, properties.scalable, properties.speed, properties.direction, properties.low_bound, properties.up_bound, properties.col_type))
+            table.insert(platforms_moving, MovingPlatform(properties.x, properties.y, properties.w, properties.h, properties.scalable, properties.speed, properties.direction, properties.low_bound, properties.up_bound, properties.coll_type))
         else
-            table.insert(platforms, Platform(properties.x, properties.y, properties.w, properties.h, properties.scalable, properties.col_type)) 
+            table.insert(platforms, Platform(properties.x, properties.y, properties.w, properties.h, properties.scalable, properties.coll_type)) 
         end
     end
 
@@ -106,7 +109,9 @@ function love.keypressed(key)
         if levels[level_number] then
             platforms, platforms_moving, doors, keys = setLevel(level_number)
         end
-    end    
+    elseif key == 'return' then
+        dialog_index = dialog_index + 1
+    end
 end
 
 function love.keyreleased(key)
@@ -232,12 +237,14 @@ function love.draw()
 
     love.graphics.setColor(255/255, 255/255, 255/255)
     love.graphics.draw(player_profile, -20, 530, 0, 2, 2)
-    love.graphics.rectangle("line", 30, 540, 200, 160)
-    love.graphics.rectangle("fill", 200, 539, 400, 162)
-
-    love.graphics.setColor(35/255, 33/255, 61/255)
-    love.graphics.print("Nina:", 227, 565)
-    love.graphics.print("Where am I?", 227, 600)
+    love.graphics.rectangle("line", 30, 540, 170, 160)
+    
+    if (levels[level_number]["nina_dialog"][dialog_index]) then
+        love.graphics.rectangle("fill", 200, 539, 400, 162)
+        love.graphics.setColor(35/255, 33/255, 61/255)
+        love.graphics.print("Nina:", 227, 565)
+        love.graphics.print(levels[level_number]["nina_dialog"][dialog_index], 227, 600)
+    end
 
     push:finish()
 end
@@ -265,7 +272,7 @@ function love.update(dt)
     for _, platform in pairs(platforms) do -- static platforms
         if platform:check_top_collision(player) then
             player:grounded(platform, "static", dt)
-        elseif platform.col_type == "solid" and platform:check_boundary_collision(player) then
+        elseif platform.coll_type == "solid" and platform:check_boundary_collision(player) then
             player:stop_moving(platform)
         end
     end

@@ -2,14 +2,14 @@ Platform = Class{}
 
 require('helpers.utils')
 
-function Platform:init(x, y, w, h, scalable, col_type)
+function Platform:init(x, y, w, h, scalable, coll_type)
     self.x = x
     self.y = y
     self.w = w
     self.h = h
 
     self.scalable = scalable
-    self.col_type = col_type
+    self.coll_type = coll_type
 
     self.collision_box = {}
     self.collision_box.x = x
@@ -25,7 +25,11 @@ function Platform:render()
         love.graphics.setColor(35/255, 33/255, 61/255)
         love.graphics.rectangle("fill", math.floor(self.x), math.floor(self.y), self.w, self.h)
     else
-        love.graphics.setColor(255/255, 255/255, 255/255)
+        if self.coll_type == "one_way" then
+            love.graphics.setColor(255/255, 255/255, 255/255, 0.2)
+        else 
+            love.graphics.setColor(255/255, 255/255, 255/255, 1)
+        end
         love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
     end
 

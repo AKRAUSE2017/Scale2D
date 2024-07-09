@@ -4,7 +4,7 @@ MovingPlatform = Class{}
 
 require('helpers.constants')
 
-function MovingPlatform:init(x, y, w, h, scalable, speed, direction, low_bound, up_bound, col_type)
+function MovingPlatform:init(x, y, w, h, scalable, speed, direction, low_bound, up_bound, coll_type)
     self.platform = Platform(x, y, w, h, scalable)
     self.scalable = scalable
 
@@ -17,7 +17,7 @@ function MovingPlatform:init(x, y, w, h, scalable, speed, direction, low_bound, 
     self.saved_speed = speed
     self.state = "active"
 
-    self.col_type = col_type
+    self.coll_type = coll_type
 end
 
 function MovingPlatform:update(dt)
