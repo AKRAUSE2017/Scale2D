@@ -81,41 +81,44 @@ function Player:update(dt)
     end
 
     if love.keyboard.isDown('d') or love.keyboard.isDown("right") then
-        self.dx = PLAYER_SPEED
+        self.dx = PLAYER_SPEED * dt
         self.flip = PLAYER_SPRITE_SCALE
+        if self.state == "air" then
+            animation.currentTime = 0.1
+        else
+            animation.currentTime = animation.currentTime + dt
+            if animation.currentTime >= animation.duration then
+                animation.currentTime = animation.currentTime - animation.duration
+            end
+        end
     elseif love.keyboard.isDown('a') or love.keyboard.isDown("left") then
-        self.dx = -PLAYER_SPEED
+        self.dx = -PLAYER_SPEED * dt
         self.flip = -PLAYER_SPRITE_SCALE
-    else
-        self.dx = 0
-        animation.currentTime = 0
-    end
-
-    -- Animation update
-    if self.state == "grounded" and self.dx then
-        animation.currentTime = animation.currentTime + dt * math.abs(self.dx / PLAYER_SPEED)
-        if animation.currentTime >= animation.duration then
-            animation.currentTime = animation.currentTime - animation.duration
+        if self.state == "air" then
+            animation.currentTime = 0.1
+        else
+            animation.currentTime = animation.currentTime + dt
+            if animation.currentTime >= animation.duration then
+                animation.currentTime = animation.currentTime - animation.duration
+            end
         end
     else
-        animation.currentTime = 0.1  -- Adjust as needed for air animation
+        self.dx = self.inherit_dx * dt
+        animation.currentTime = 0
     end
 
     if self.state == "air" then
         self.bend_to_jump_timer = 0
 
-        self.dy = self.dy + GRAVITY
-        self.y = self.y + (self.dy * dt)
-        
+        self.dy = self.dy + GRAVITY * dt
         self.inherit_dx = 0
     else
-        self.dy = self.inherit_dy
-        self.y = self.y + (self.dy * dt)
+        self.dy = self.inherit_dy * dt
     end
-    if self.dx == 0 then
-        self.x = self.x + (self.inherit_dx * dt)
-    else self.x = self.x + (self.dx * dt) end
 
+    self.x = self.x + self.dx
+    self.y = self.y + self.dy
+    
     -- check screen boundaries
     if self.x > VIRTUAL_WIDTH - self.w then self.x = VIRTUAL_WIDTH - self.w end
     if self.x < 0 then self.x = 0 end
