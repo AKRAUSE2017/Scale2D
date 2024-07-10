@@ -109,19 +109,15 @@ function Player:update(dt)
 
     if self.state == "air" then
         self.bend_to_jump_timer = 0
-        dy_pre_accel = self.dy
         self.dy = self.dy + GRAVITY * dt
-        dy_avg = (dy_pre_accel + self.dy)/2
-        self.y = self.y + dy_avg
 
         self.inherit_dx = 0
     else
         self.dy = self.inherit_dy * dt
-        self.y = self.y + self.dy
     end
 
     self.x = self.x + self.dx
-    
+    self.y = self.y + self.dy
     
     -- check screen boundaries
     if self.x > VIRTUAL_WIDTH - self.w then self.x = VIRTUAL_WIDTH - self.w end
