@@ -75,13 +75,13 @@ function Player:update(dt)
     if (love.keyboard.keysPressed["space"] or (self.bend_to_jump_timer > 0)) and self.state == "grounded" and GAME_STATE == "play" then
         self.bend_to_jump_timer = self.bend_to_jump_timer + dt
         if self.bend_to_jump_timer > 0.1 then
-            self.dy = (-PLAYER_JUMP_HEIGHT + self.inherit_dy) * dt
+            self.dy = (-PLAYER_JUMP_HEIGHT + self.inherit_dy)
             self.state = "air"
         end
     end
 
     if love.keyboard.isDown('d') or love.keyboard.isDown("right") then
-        self.dx = PLAYER_SPEED * dt
+        self.dx = PLAYER_SPEED
         self.flip = PLAYER_SPRITE_SCALE
         if self.state == "air" then
             animation.currentTime = 0.1
@@ -92,7 +92,7 @@ function Player:update(dt)
             end
         end
     elseif love.keyboard.isDown('a') or love.keyboard.isDown("left") then
-        self.dx = -PLAYER_SPEED * dt
+        self.dx = -PLAYER_SPEED
         self.flip = -PLAYER_SPRITE_SCALE
         if self.state == "air" then
             animation.currentTime = 0.1
@@ -103,7 +103,7 @@ function Player:update(dt)
             end
         end
     else
-        self.dx = self.inherit_dx * dt
+        self.dx = self.inherit_dx
         animation.currentTime = 0
     end
 
@@ -113,11 +113,11 @@ function Player:update(dt)
 
         self.inherit_dx = 0
     else
-        self.dy = self.inherit_dy * dt
+        self.dy = self.inherit_dy
     end
 
-    self.x = self.x + self.dx
-    self.y = self.y + self.dy
+    self.x = self.x + self.dx * dt
+    self.y = self.y + self.dy * dt
     
     -- check screen boundaries
     if self.x > VIRTUAL_WIDTH - self.w then self.x = VIRTUAL_WIDTH - self.w end
