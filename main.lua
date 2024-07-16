@@ -5,7 +5,7 @@ local player = {x=500, y=600, w=100, h=100, dx=0, dy=0, state="ground"}
 
 function love.keypressed(key)
     if key == "space" then
-        player.dy = -100
+        player.dy = -300
         player.state = "air"
     end
 end
@@ -20,7 +20,7 @@ function love.update(dt)
     end
 
     if player.state == "air" then
-        player.dy = player.dy + 60 * dt
+        player.dy = player.dy + 500 * dt
     end
 
     if player.y > 600 then 
